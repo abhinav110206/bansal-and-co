@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+  cases     Case[]
+}
+
+model Lawyer {
+  id         String   @id @default(uuid())
+  name       String
+  experience Int
+  specialty  String
+  bio        String?
+  image      String?
+  isHead     Boolean  @default(false)
+}
+
+model Case {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  type        String
+  description String   @db.Text
+  status      Status   @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  chatHistory Json?
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+enum Status {
+  PENDING
+  IN_REVIEW
+  ACCEPTED
+  RESOLVED
+  DECLINED
+}
